@@ -1,6 +1,6 @@
 const CACHE_NAME = 'calendar-pwa-v1';
 const urlsToCache = [
-  '/',
+  './',
   '/index.html',
   '/manifest.json'
 ];
