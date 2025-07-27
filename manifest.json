@@ -2,7 +2,7 @@
   "name": "Calendar PWA",
   "short_name": "Calendar",
   "description": "Interactive Calendar with Events",
-  "start_url": "/",
+  "start_url": "./",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f5f5f5",
