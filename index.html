@@ -115,6 +115,8 @@
             border-radius: 5px;
             cursor: pointer;
             position: relative;
+            flex-direction: column;
+            padding: 5px;
         }
         
         .calendar-day:hover {
@@ -125,6 +127,14 @@
             background-color: #4285f4;
             color: white;
             font-weight: bold;
+            border: 2px solid #1a73e8;
+        }
+        
+        .today {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            font-weight: bold;
+            border: 2px solid #1a73e8;
         }
         
         .other-month {
@@ -450,22 +460,57 @@
         .data-actions button {
             flex: 1;
         }
+        
         .install-btn {
-         position: fixed;
-         bottom: 20px;
-         right: 20px;
-         z-index: 1000;
-         padding: 10px 20px;
-         background-color: #4285f4;
-         color: white;
-         border: none;
-         border-radius: 5px;
-         cursor: pointer;
-         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-       }
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px 20px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
 
-       .install-btn:hover {
-        background-color: #3367d6;
+        .install-btn:hover {
+            background-color: #3367d6;
+        }
+        
+        .event-title-text {
+            font-size: 9px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            text-align: center;
+            margin-top: 2px;
+            font-weight: bold;
+        }
+        
+        .day-number {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .event-initials {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2px;
+            margin-top: 2px;
+        }
+        
+        .event-initial {
+            font-size: 8px;
+            font-weight: bold;
+            background-color: rgba(255,255,255,0.7);
+            padding: 1px 3px;
+            border-radius: 3px;
+            min-width: 10px;
+            text-align: center;
         }
     </style>
 </head>
@@ -753,11 +798,17 @@
                     const currentDateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
                     const dayElement = document.createElement('div');
                     dayElement.classList.add('calendar-day');
-                    dayElement.textContent = day;
+                    
+                    const dayNumber = document.createElement('div');
+                    dayNumber.className = 'day-number';
+                    dayNumber.textContent = day;
+                    dayElement.appendChild(dayNumber);
+                    
                     dayElement.dataset.date = formatDate(currentDateObj);
                     
-                    if (isCurrentMonth && day === today.getDate()) {
-                        dayElement.classList.add('current-day');
+                    // Check if it's today
+                    if (today.toDateString() === currentDateObj.toDateString()) {
+                        dayElement.classList.add('today');
                     }
                     
                     const dateKey = formatDate(currentDateObj);
@@ -765,6 +816,23 @@
                         dayElement.classList.add('has-event');
                         dayElement.style.backgroundColor = events[dateKey][0].color + '20';
                         dayElement.style.color = getContrastColor(events[dateKey][0].color);
+                        
+                        // Show event initials
+                        const initialsContainer = document.createElement('div');
+                        initialsContainer.className = 'event-initials';
+                        
+                        // Limit to showing 4 initials max
+                        const eventsToShow = events[dateKey].slice(0, 4);
+                        
+                        eventsToShow.forEach(event => {
+                            const initial = document.createElement('div');
+                            initial.className = 'event-initial';
+                            initial.textContent = getInitials(event.title);
+                            initial.style.backgroundColor = event.color + '80';
+                            initialsContainer.appendChild(initial);
+                        });
+                        
+                        dayElement.appendChild(initialsContainer);
                     }
                     
                     dayElement.addEventListener('click', function() {
@@ -782,6 +850,14 @@
                     dayElement.classList.add('calendar-day', 'other-month');
                     calendarDays.appendChild(dayElement);
                 }
+            }
+            
+            function getInitials(title) {
+                // Get first 2 letters of the title (or first letter if only 1 word)
+                const words = title.trim().split(/\s+/);
+                if (words.length === 0) return '';
+                if (words.length === 1) return words[0].charAt(0).toUpperCase();
+                return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
             }
             
             function renderAllEvents() {
